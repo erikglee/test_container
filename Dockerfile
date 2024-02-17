@@ -1,34 +1,24 @@
-# Use a minimal base image
-FROM ubuntu:24.04
+# Use an official Miniconda runtime as a parent image
+FROM continuumio/miniconda3:latest
 
-# Install miniconda
-RUN wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh && \
-    bash miniconda.sh -b -p /opt/miniconda && \
-    rm miniconda.sh
+# Set the working directory in the container
+WORKDIR /app
 
-# Set environment variables
-ENV PATH="/opt/miniconda/bin:$PATH"
-ENV PYTHONPATH="/opt/miniconda/envs/imaging_python/lib/python3.9/site-packages"
+# Create a conda environment with a specific Python version
+RUN conda create --name imaging_python_env python=3.8
 
-# Create a conda environment with Python 3.9 and Jupyter
-RUN conda create -n imaging_python python=3.9 jupyter notebook
+# Activate the conda environment
+SHELL ["conda", "run", "-n", "imaging_python_env", "/bin/bash", "-c"]
 
-# Activate the environment
-RUN conda activate imaging_python
+# Install Jupyter and create a kernel named "imaging_python"
+RUN conda install -y jupyter
+RUN python -m ipykernel install --user --name=imaging_python
 
-# Install imaging libraries and dependencies
-RUN conda install -c conda-forge vtk -y
-RUN conda install -c anaconda brainspace -y
+# Install brainspace and its dependencies
+RUN conda install -y -c conda-forge brainspace vtk
 
-# Install jupyter notebook kernel for "imaging_python" environment
-RUN jupyter kernelspec install --display-name "imaging_python" --python /opt/miniconda/envs/imaging_python/bin/python
-
-# Clean up
-RUN conda clean --all
-
-# Expose jupyter notebook port
+# Expose the Jupyter notebook port
 EXPOSE 8888
 
-# Set a working directory and start the jupyter notebook server
-WORKDIR /notebooks
-CMD ["jupyter", "notebook", "--allow-root"]
+# Set the default command to launch Jupyter notebook
+CMD ["conda", "run", "-n", "imaging_python_env", "jupyter", "notebook", "--ip=0.0.0.0", "--port=8888", "--no-browser", "--allow-root"]
