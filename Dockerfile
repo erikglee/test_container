@@ -5,7 +5,7 @@ FROM continuumio/miniconda3
 WORKDIR /usr/src/app
 
 # Create a Conda environment and install all packages in one go to ensure compatibility
-RUN conda create --name imaging_env python=your_python_version pip ipykernel notebook -c conda-forge && \
+RUN conda create --name imaging_env python=3.9 pip ipykernel notebook -c conda-forge && \
     conda clean --all --yes
 
 # Activate the script mods for conda in shell
