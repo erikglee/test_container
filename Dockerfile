@@ -6,7 +6,7 @@ WORKDIR /usr/src/app
 
 # Create a Conda environment
 # Replace "your_python_version" with the desired version of Python, e.g., "3.8"
-RUN conda create --name imaging_env python=your_python_version
+RUN conda create --name imaging_env python=3.9
 
 # Activate the environment
 SHELL ["conda", "run", "-n", "imaging_env", "/bin/bash", "-c"]
